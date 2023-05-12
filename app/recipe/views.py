@@ -22,6 +22,8 @@ from core.models import (
     Ingredient,
 )
 from recipe import serializers
+
+
 @extend_schema_view(
     list=extend_schema(
         parameters=[
@@ -44,9 +46,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
     def _params_to_ints(self, qs):
         """Convert a list of strings to integers."""
         return [int(str_id) for str_id in qs.split(',')]
+
     def get_queryset(self):
         """Retrieve recipes for authenticated user."""
         tags = self.request.query_params.get('tags')
@@ -61,6 +65,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return queryset.filter(
             user=self.request.user
         ).order_by('-id').distinct()
+
     def get_serializer_class(self):
         """Return the serializer class for request."""
         if self.action == 'list':
@@ -68,9 +73,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         elif self.action == 'upload_image':
             return serializers.RecipeImageSerializer
         return self.serializer_class
+
     def perform_create(self, serializer):
         """Create a new recipe."""
         serializer.save(user=self.request.user)
+
     @action(methods=['POST'], detail=True, url_path='upload-image')
     def upload_image(self, request, pk=None):
         """Upload an image to recipe."""
@@ -120,6 +127,8 @@ class TagViewSet(BaseRecipeAttrViewSet):
     """Manage tags in the database."""
     serializer_class = serializers.TagSerializer
     queryset = Tag.objects.all()
+
+
 class IngredientViewSet(BaseRecipeAttrViewSet):
     """Manage ingredients in the database."""
     serializer_class = serializers.IngredientSerializer
